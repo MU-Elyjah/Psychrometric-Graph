@@ -102,7 +102,7 @@ def PlotCharts():
     ENTH = np.linspace(10,50,5)
     WETB = np.linspace(20,95,16)
     lbs2kpa= 6.89475729 #converting
-    Pt = 14.7*lbs2kpa
+    Pt = 14.7*lbs2kpa #NOTE Change for different eleveations
 
     for rh in RH2:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
