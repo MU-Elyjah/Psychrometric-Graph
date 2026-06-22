@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-def Enthalpy(Pt, Tdb, Phi) -> float:
+def Enthalpy(Pt, Tdb, phi) -> float:
     """
     Returns the enthalpy from state points where:
     cpa: BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
@@ -22,36 +22,90 @@ def Enthalpy(Pt, Tdb, Phi) -> float:
     """
     cpa: float = 0.240
     cpw: float = 0.444
-    Hew: float = 1075
-    Ha: float = cpa * Tdb
-    Hw: float = cpw * Tdb + Hew
-    H: float = Ha + Hw * Phi / 7000
-    return H
+    hew: float = 1075
+    ha: float = cpa * Tdb
+    hw: float = cpw * Tdb + hew
+    h: float = ha + hw * phi / 7000
+    return h
 
 
 def relativeHumidity(Pt, Tdb, Phi):
-    lbs2kpa = 6.89475729 #converting
-    z = .622
-    PsT = .61078 * np.exp((17.27 * Tdb) / (Tdb + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
-    Pt = 14.7*lbs2kpa #User inputs psi and gets Kpa
-    Pv = Phi * Pt / (z + Phi) #water vapor pressure
+    """
+    Returns the relative humidity from state points where:
+    lbs2kpa: converting
+    z: 
+    PsT: Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
+    Pt: User inputs psi and gets Kpa
+    Pv: water vapor pressure
+    
+    Parameters
+    ----------
+    Tdb (float): Drybulb temperature.
+    Pt (float): 
+    Phi (float): 
+
+    Returns
+    --------
+    H (int): Enthalpy
+    """
+    lbs2kpa = 6.89475729 #
+    z = 0.622
+    PsT = .61078 * np.exp((17.27 * Tdb) / (Tdb + 237.3))
+    Pt = 14.7 * lbs2kpa
+    Pv = Phi * Pt / (z + Phi)
     RH = (Pv / PsT) * 100
     return RH
 
 
 def constRelativeHumid(Pt, rh, Tdb):
+    """
+    Returns the enthalpy from state points where:
+    cpa: BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    cpw: BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    Hew: specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    Ha: specific enthalpy of Air H = cp * dT
+    Hw: specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
+    
+    Parameters
+    ----------
+    Tdb (float): Drybulb temperature.
+    Pt (float): 
+    H (float): total specific enthalpy
+
+    Returns
+    --------
+    H (int): Enthalpy
+    """
     z = .622
     Cdb2 = (Tdb - 32) * 5 / 9 # [C]-->>
     PsT = .61078 * np.exp((17.27 * Cdb2) / (Cdb2 + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
-    Pv2 = (rh*PsT)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
+    Pv2 = (rh * PsT) / 100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
     Phi = z*(Pv2 / (Pt - Pv2)) * 7000 # see appendix A [grains/lbs]
     return Phi
 
 
 def constSpecificVol(Pt, vspec_a, Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH
+    """
+    Returns the enthalpy from state points where:
+    cpa: BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    cpw: BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    Hew: specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    Ha: specific enthalpy of Air H = cp * dT
+    Hw: specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
+    
+    Parameters
+    ----------
+    Tdb (float): Drybulb temperature.
+    Pt (float): 
+    H (float): total specific enthalpy
+
+    Returns
+    --------
+    H (int): Enthalpy
+    """
     kpa2psi = 0.145037738
     Ra = 53.53 # lbf/lb*Rs
-    z = .622
+    z = 0.622
     in2ft_cubic = 1 / (12 ** 2)
     Cdb2 = (Tdb - 32) * 5 / 9 # [C]-->>
     PsT = .61078 * np.exp((17.27 * Cdb2) / (Cdb2 + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs
@@ -72,8 +126,8 @@ def constEnthalpy(Pt, H, Tdb):
     cpa = .240 #BTU/lb_a*F MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
     cpw = .444 #BTU/lb_w*F MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
     Hew = 1075 #specific enthalpy of water [BTU/lbs] vaporization from 31F NEED TO PULL FROM STEAM TABLES based off of temp and pressure
-    Ha = cpa*Tdb #specific enthalpy of Air H = cp * dT
-    Hw = cpw*Tdb + Hew #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
+    Ha = cpa * Tdb #specific enthalpy of Air H = cp * dT
+    Hw = cpw * Tdb + Hew #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
     #H = Ha + Hw*Phi2/7000 #total specific enthalpy
     Phi = ((H - Ha) / Hw) * 7000
     return Phi
