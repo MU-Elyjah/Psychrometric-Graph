@@ -3,11 +3,11 @@ import numpy as np
 import unitconversions as uc
 import CoolProp.CoolProp as CP
 from pyXSteam.XSteam import XSteam
-steamTable = XSteam(XSteam.UNIT_SYSTEM_FLS) #ft/lb/sec/°F/psi/btu
+steamTable = XSteam(XSteam.UNIT_SYSTEM_MKS) 
 
-def Enthalpy(Pt,Tdb,humrat):
+def Enthalpy(Pt,Tdb,humrat): #pt in KPa
     TdbK = uc.convertF2K(Tdb) 
-    PtPA = uc.convertPSI2PA(Pt)
+    PtPA = Pt*1000
     cpaSI = CP.PropsSI('C','T',TdbK,'P',PtPA,"Air") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
     cpaIP = uc.convertJ_kgK(cpaSI)
     cpwvSI =  CP.PropsSI('C','T',TdbK,'Q',1,"Water") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
@@ -16,34 +16,38 @@ def Enthalpy(Pt,Tdb,humrat):
     Tfreeze = 32
     TfreezeK = uc.convertF2K(Tfreeze)
 
-    HewIS = steamTable.h_tx(TfreezeK,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
-    HewIP = uc.convertKj_Kg(HewIS)
+    HewSI = steamTable.h_tx(TfreezeK,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    HewIP = uc.convertKj_Kg(HewSI)
     Ha = cpaIP*Tdb #specific enthalpy of Air H = cp * dT
-    Hw = cpwvIP*Tdb + HewIP #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
+    Hw = cpwvIP*(Tdb - 32) + HewIP #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
     H = Ha + Hw*humrat/7000 #total specific enthalpy
     #print(cpwIP)
     #print(cpaIP)
     #print(cpwvIP)
+    #print(f"TfreezeIP: {TfreezeK:.2f} Btu/lb")
+    #print(f"HewIP: {HewIP:.2f} Btu/lb")
+    #print(f"Ha: {Ha:.2f} Btu/lb")
+    #print(f"Hw: {Hw:.2f} Btu/lb")
     return H
 
-def relativeHumidity(Pt,Tdb,Phi):
+def relativeHumidity(Pt,Tdb,Phi): #pt in KPa
     lbs2kpa= 6.89475729 #converting
     z = .622
     PsT = .61078 * np.exp((17.27 * Tdb)/(Tdb + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
-    Pt = 14.7*lbs2kpa #User inputs psi and gets Kpa
     Pv = Phi*Pt/(z + Phi) #water vapor pressure
     RH = (Pv/PsT)*100
     return RH
 
-def constRelativeHumid(Pt,rh,Tdb):
+def constRelativeHumid(Pt,rh,Tdb): #pt in KPa
     z = .622
     Cdb2 = (Tdb - 32)*5/9 # [C]-->>
     PsT = .61078 * np.exp((17.27 * Cdb2)/(Cdb2 + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
+    print(uc.convertPA2PSI(PsT*1000))
     Pv2 = (rh*PsT)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
-    Phi = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
-    return Phi
+    humrat = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
+    return humrat
 
-def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH
+def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH #pt in KPa
     kpa2psi = 0.145037738
     in2ft_cubic = 1/(12**2)
 
@@ -54,9 +58,9 @@ def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH
     Phi = z*(Pv2/(Pt-Pv2))*7000 # [grains/lbs] #vapor pressure over air pressure  #molar ratio is equal to pressure ratio (water is essentially an ideal gas)
     return Phi
 
-def constEnthalpy(Pt,H,Tdb):
+def constEnthalpy(Pt,H,Tdb):#pt in KPa
     TdbK = uc.convertF2K(Tdb) 
-    PtPA = uc.convertPSI2PA(Pt)
+    PtPA = Pt*1000 #Pa
     cpaSI = CP.PropsSI('C','T',TdbK,'P',PtPA,"Air") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
     cpaIP = uc.convertJ_kgK(cpaSI)
     cpwvSI =  CP.PropsSI('C','T',TdbK,'Q',1,"Water") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
@@ -69,14 +73,15 @@ def constEnthalpy(Pt,H,Tdb):
     HewIP = uc.convertKj_Kg(HewIS)
 
     Ha = cpaIP*Tdb #specific enthalpy of Air H = cp * dT
-    Hw = cpwvIP*Tdb + HewIP #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
-    Phi = ((H - Ha)/Hw)*7000
-    print(steamTable.h_tx(TfreezeK,1))
-    return Phi
+    Hw = cpwvIP*(Tdb -32) + HewIP #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
+    humrat = ((H - Ha)/Hw)*7000
+    #print(steamTable.h_tx(TfreezeK,1))
+
+    return humrat
 
 def constWetBulb(Pt,Twb,Tdb):
     TdbK = uc.convertF2K(Tdb) 
-    PtPA = uc.convertPSI2PA(Pt)
+    PtPA = Pt*1000
     #Hg = 1150.3 #Btu/lbm enthalpy of water at x = 1
 
     Tfreeze = 32
@@ -127,11 +132,11 @@ def PlotCharts(Z):
     Tdb2 = np.linspace(30,120) # [F]
     RH2 = np.linspace(10,100,10) #%
     SPV = np.linspace(12.5,15,6)
-    ENTH = np.linspace(10,50,5)
+    ENTH = np.linspace(10,50,11)
     WETB = np.linspace(20,95,16)
     psi2kpa= 6.89475729 #converting
     Pt = (14.696*(1 - 6.8754*10**(-6)*Z)**5.2559)*psi2kpa #
-    print(Pt)
+    #print(Pt)
 
     for rh in RH2:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
@@ -140,7 +145,7 @@ def PlotCharts(Z):
         plt.plot(Tdb2,Phi2, color = 'red')
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
         ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
-        plt.text(xlabel,ylabel,f'{rh}%',fontsize = 9,rotation = 45) #label graphs positions with rh change to string
+        plt.text(xlabel,ylabel,f'{rh}%',fontsize = 9,rotation = 45, color = "red") #label graphs positions with rh change to string
 
         #print(Phi2)
 
@@ -162,7 +167,7 @@ def PlotCharts(Z):
         ylabel = Phi2[1] #location for label in y
 
         plt.plot(Tdb2,Phi2,color = 'blue')
-        plt.text(xlabel,ylabel,f'{enth}!',fontsize = 9,rotation = 45) #label graphs positions with rh change to string
+        plt.text(xlabel,ylabel,f'{enth}!',fontsize = 9,rotation = 4, color = "Blue") #label graphs positions with rh change to string
 
 
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
@@ -178,7 +183,7 @@ def PlotCharts(Z):
         plt.plot(Tdb2,Phi2, color = 'orange')
         xlabel = Tdb2[0] #location for label in x
         ylabel = Phi2[0] #location for label in y
-        plt.text(xlabel,ylabel,f'{wetb}',fontsize = 9,rotation = 45) #label graphs positions with rh change to string
+        plt.text(xlabel,ylabel,f'{wetb}',fontsize = 9,rotation = 45, color = "orange") #label graphs positions with rh change to string
 
 
     plt.xlabel("Dry Bulb Temperature")
@@ -189,14 +194,10 @@ def PlotCharts(Z):
 def main():
 #USER INPUT HERE
     Z = 1000 #ft EDIT HERE FOR LOCATION ALTITUDE
-    PlotCharts(Z)
-    E1 = Enthalpy(14.16,86,67.4)
-    E2 = Enthalpy(14.16,55,67.4)
-    Total = E1 - E2
-
+    #PlotCharts(Z)
+    Ppsi = 14.696
+    PKpa = uc.convertPSI2PA(Ppsi)/1000
+    print(constRelativeHumid(PKpa,100,55))
+    E1 = Enthalpy(PKpa,55,constRelativeHumid(PKpa,100,55))
     print("E Hot: ", E1)
-    print("E Cold: ", E2)
-
-    print("Total: ", Total)
-
 main()
