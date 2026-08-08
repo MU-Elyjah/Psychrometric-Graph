@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import unitconversions as uc
-
 import CoolProp.CoolProp as CP
 from pyXSteam.XSteam import XSteam
 steamTable = XSteam(XSteam.UNIT_SYSTEM_FLS) #ft/lb/sec/°F/psi/btu
@@ -123,7 +122,7 @@ def plotFormat():
     ax.set_yticks(minor_ticks_y, minor=True)
     ax.grid(which= 'both')
 
-def PlotCharts():
+def PlotCharts(Z):
     plotFormat()
     Tdb2 = np.linspace(30,120) # [F]
     RH2 = np.linspace(10,100,10) #%
@@ -131,7 +130,6 @@ def PlotCharts():
     ENTH = np.linspace(10,50,5)
     WETB = np.linspace(20,95,16)
     psi2kpa= 6.89475729 #converting
-    Z = 1000 #altitude in ft
     Pt = (14.696*(1 - 6.8754*10**(-6)*Z)**5.2559)*psi2kpa #
     print(Pt)
 
@@ -190,7 +188,8 @@ def PlotCharts():
 
 def main():
 #USER INPUT HERE
-    PlotCharts()
+    Z = 1000 #ft EDIT HERE FOR LOCATION ALTITUDE
+    PlotCharts(Z)
     E1 = Enthalpy(14.16,86,67.4)
     E2 = Enthalpy(14.16,55,67.4)
     Total = E1 - E2
