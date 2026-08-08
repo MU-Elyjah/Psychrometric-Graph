@@ -6,3 +6,5 @@ The use of the repository is to get an indepth understanding of how the pyscrome
 
 Pt = 14.7 Psia
 <img width="1624" height="858" alt="image" src="https://github.com/user-attachments/assets/77ae228b-2973-49d9-b57e-38ca65a82947" />
+Verified with Texas A&M Psychometric calculator 
+https://people.tamu.edu/~i-choudhury/psych.html
