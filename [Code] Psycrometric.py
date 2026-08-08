@@ -1,14 +1,32 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import unitconversions as uc
 
-def Enthalpy(Pt,Tdb,Phi):
-    cpa = .240 #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
-    cpw = .444 #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
-    Hew = 1075 #specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
-    Ha = cpa*Tdb #specific enthalpy of Air H = cp * dT
-    Hw = cpw*Tdb + Hew #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
-    H = Ha + Hw*Phi/7000 #total specific enthalpy
+import CoolProp.CoolProp as CP
+from pyXSteam.XSteam import XSteam
+steamTable = XSteam(XSteam.UNIT_SYSTEM_FLS) #ft/lb/sec/°F/psi/btu
+
+def Enthalpy(Pt,Tdb,humrat):
+    TdbK = uc.convertF2K(Tdb) 
+    PtPA = uc.convertPSI2PA(Pt)
+    cpaSI = CP.PropsSI('C','T',TdbK,'P',PtPA,"Air") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    cpaIP = uc.convertJ_kgK(cpaSI)
+    cpwvSI =  CP.PropsSI('C','T',TdbK,'Q',1,"Water") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    cpwvIP = uc.convertJ_kgK(cpwvSI)
+
+    Tfreeze = 32
+    TfreezeK = uc.convertF2K(Tfreeze)
+
+    HewIS = steamTable.h_tx(TfreezeK,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    HewIP = uc.convertKj_Kg(HewIS)
+    Ha = cpaIP*Tdb #specific enthalpy of Air H = cp * dT
+    Hw = cpwvIP*Tdb + HewIP #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
+    H = Ha + Hw*humrat/7000 #total specific enthalpy
+    #print(cpwIP)
+    #print(cpaIP)
+    #print(cpwvIP)
     return H
+
 def relativeHumidity(Pt,Tdb,Phi):
     lbs2kpa= 6.89475729 #converting
     z = .622
@@ -25,56 +43,67 @@ def constRelativeHumid(Pt,rh,Tdb):
     Pv2 = (rh*PsT)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
     Phi = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
     return Phi
+
 def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH
     kpa2psi = 0.145037738
-    Ra = 53.53 # lbf/lb*Rs
-    z = .622
     in2ft_cubic = 1/(12**2)
-    Cdb2 = (Tdb - 32)*5/9 # [C]-->>
-    PsT = .61078 * np.exp((17.27 * Cdb2)/(Cdb2 + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs
-    #Pv = (rh*PsT)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
-    #print(Pv)
 
-    #vspec_a= (Ra*Tdb/((Pt - Pv2)*kpa2psi))*in2ft_cubic #specific volume of air P*v = Ra*T [in^3/lb]
+    Ra = 53.53 # lbf/lb*Rs
+    z = .622 #molecular mass ratio of water/air mv/ma
     Tdb = Tdb + 459.67 # converting to Rankine temp
-    Pv2 = (Pt - ((Ra*Tdb)*in2ft_cubic)/(vspec_a*kpa2psi))#air pressure
-
-    Phi = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
-    #Pv = Phi*Pt/(z*7000 + Phi)
-
+    Pv2 = (Pt - ((Ra*Tdb)*in2ft_cubic)/(vspec_a*kpa2psi)) #Vapor pressure
+    Phi = z*(Pv2/(Pt-Pv2))*7000 # [grains/lbs] #vapor pressure over air pressure  #molar ratio is equal to pressure ratio (water is essentially an ideal gas)
     return Phi
+
 def constEnthalpy(Pt,H,Tdb):
-    cpa = .240 #BTU/lb_a*F MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
-    cpw = .444 #BTU/lb_w*F MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
-    Hew = 1075 #specific enthalpy of water [BTU/lbs] vaporization from 31F NEED TO PULL FROM STEAM TABLES based off of temp and pressure
-    Ha = cpa*Tdb #specific enthalpy of Air H = cp * dT
-    Hw = cpw*Tdb + Hew #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
-    #H = Ha + Hw*Phi2/7000 #total specific enthalpy
+    TdbK = uc.convertF2K(Tdb) 
+    PtPA = uc.convertPSI2PA(Pt)
+    cpaSI = CP.PropsSI('C','T',TdbK,'P',PtPA,"Air") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    cpaIP = uc.convertJ_kgK(cpaSI)
+    cpwvSI =  CP.PropsSI('C','T',TdbK,'Q',1,"Water") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE
+    cpwvIP = uc.convertJ_kgK(cpwvSI)
+    Tfreeze = 32
+    TfreezeK = uc.convertF2K(Tfreeze)
+
+    #Hew = steamTable.h_tx(32,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    HewIS = steamTable.h_tx(TfreezeK,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    HewIP = uc.convertKj_Kg(HewIS)
+
+    Ha = cpaIP*Tdb #specific enthalpy of Air H = cp * dT
+    Hw = cpwvIP*Tdb + HewIP #specific enthalpy of water H = cp * dT + H0 where H0 is needed for latent energy where it is isothermal
     Phi = ((H - Ha)/Hw)*7000
+    print(steamTable.h_tx(TfreezeK,1))
     return Phi
+
 def constWetBulb(Pt,Twb,Tdb):
+    TdbK = uc.convertF2K(Tdb) 
+    PtPA = uc.convertPSI2PA(Pt)
     #Hg = 1150.3 #Btu/lbm enthalpy of water at x = 1
-    Hg = 2501 #KJ/Kg enthalpy of water at x = 1 recursive due to wetbulb temp depenance
-    cpa = 1.006 #KJ/Kg*K specific heat of air T = 25C 77F
-    cpwv = 1.864 #KJ/Kg*K specific heat of water vapor at T = 25C 77F
-    cpw = 4.18 #KJ/Kg*K speciifc heat of water at T = 25C 77F
+
+    Tfreeze = 32
+    TfreezeK = uc.convertF2K(Tfreeze)
+    #Hew = steamTable.h_tx(32,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    HgSI = steamTable.h_tx(TfreezeK,1)#specific enthalpy of water [BTU/lbs] vaporization from 31F or 0C, 0C does not imply no kinetic motion good approx due to change in enthalpy later
+    HgIP = uc.convertKj_Kg(HgSI)
+    cpaSI = CP.PropsSI('C','T',TdbK,'P',PtPA,"Air") #BTU/lbF MINIMAL CHANGES DUE TO CHANGE IN ABS PRESSURE AND TEMPERATURE #KJ/Kg*K specific heat of air T = 25C 77F
+    cpwvSI = 1.864 #KJ/Kg*K specific heat of water vapor at T = 25C 77F
+    cpwSI = CP.PropsSI('C','T',TdbK,'P',PtPA,"Water") #KJ/Kg*K speciifc heat of water at T = 25C 77F
+    cpwvSI = CP.PropsSI('C','T',TdbK,'Q',1,"Water") #KJ/Kg*K speciifc heat of water at T = 25C 77F
+    # print(cpwSI)
+    # print(cpwvSI)
+    # print(cpaSI)
+
+    cpaIP = uc.convertJ_kgK(cpaSI)
+    cpwIP = uc.convertJ_kgK(cpwSI)
+    cpwvIP = uc.convertJ_kgK(cpwvSI)
+
     rh_sat = 100
-    phisat = constRelativeHumid(Pt,rh_sat,Twb)
-    phisat = phisat/7000
-    Twb = (Twb - 32)*5/9
-    Tdb = (Tdb - 32)*5/9
+    humratsat = constRelativeHumid(Pt,rh_sat,Twb)
+    humratsat = humratsat/7000
 
-    #print(phisat)
-    #Hv = Hg + cpwv*Tdb #Water vapor enthalpy calc
-    #Ha = cpa*Tdb #Air enthalpy calc
-    #Hini = Hv + Ha
-    #deltaH2sat = (phi - phisat)*(cpw*Twb)
-    #hsat = cpa*Twb + cpw*Twb*phisat + phisat*Hg
-    #hsat = Hini + deltaH2sat = cpa*Twb + cpw*Twb*phisat + phisat*Hg #solve for wet bulb temp
+    humrat = ((humratsat*(HgIP + (cpwvIP*Twb - cpwIP*Twb)) - cpaIP*(Tdb - Twb))/(HgIP + cpwvIP*Tdb - cpwIP*Twb))*7000
 
-    phi = ((phisat*(Hg + (cpwv*Twb - cpw*Twb)) - cpa*(Tdb - Twb))/(Hg + cpwv*Tdb - cpw*Twb))*7000
-
-    return phi
+    return humrat
 
 def plotFormat():
     f = plt.figure()
@@ -101,19 +130,21 @@ def PlotCharts():
     SPV = np.linspace(12.5,15,6)
     ENTH = np.linspace(10,50,5)
     WETB = np.linspace(20,95,16)
-    lbs2kpa= 6.89475729 #converting
-    Pt = 14.7*lbs2kpa #NOTE Change for different eleveations
+    psi2kpa= 6.89475729 #converting
+    Z = 1000 #altitude in ft
+    Pt = (14.696*(1 - 6.8754*10**(-6)*Z)**5.2559)*psi2kpa #
+    print(Pt)
 
     for rh in RH2:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constRelativeHumid(Pt,rh,Tdb2)
-
         plt.plot(Tdb2,Phi2, color = 'red')
-
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
         ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
         plt.text(xlabel,ylabel,f'{rh}%',fontsize = 9,rotation = 45) #label graphs positions with rh change to string
+
+        #print(Phi2)
 
     for spv in SPV:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
@@ -156,9 +187,17 @@ def PlotCharts():
     plt.ylabel("Humidity Ratio")
     plt.show()
 
+
 def main():
 #USER INPUT HERE
     PlotCharts()
+    E1 = Enthalpy(14.16,86,67.4)
+    E2 = Enthalpy(14.16,55,67.4)
+    Total = E1 - E2
 
+    print("E Hot: ", E1)
+    print("E Cold: ", E2)
+
+    print("Total: ", Total)
 
 main()
