@@ -10,13 +10,14 @@ $$ .622 \frac{P_v}{P_a} = W $$
 
 $$ P_a = \frac{.622 P_v}{W} $$
 $$ P_t = P_a + P_v $$
-$$Pv = \frac{WP_a}{.622 + W}$$ 
+$$P_v = \frac{WP_a}{.622 + W}$$ 
 
 Vapor pressure
 
-$$ Pv_{sat} = .61078 e^{\frac{17.27T}{T + 273}} $$ 
+$$ P_vsat = .61078 e^{\frac{17.27T}{T + 273}} $$ 
 
 > Magnus - Tentens Equation
 > 
 Saturated vapor pressure i.e. pressure where the Pv = Pv_sat the max amount of pressure the water will see at 100% relative humidity 
 
+$$RH = 100\frac{P_v}{P_v{sat}} $$
