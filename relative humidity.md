@@ -1,0 +1,5 @@
+#HOW RELATIVE HUMIDITY IS CALCULATED 
+
+$
+  P_vV = n_vRT
+$
