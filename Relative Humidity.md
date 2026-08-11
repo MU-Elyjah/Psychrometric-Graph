@@ -20,7 +20,8 @@ $$ P(Tdb)_{sat} = .61078 e^{\frac{17.27T}{T + 273}} $$
 
 <img width="397" height="310" alt="image" src="https://github.com/user-attachments/assets/0551d4c5-a72e-4e5f-ab8c-be97aaa365f9" />
 
->the image above represents what the Magnus-Tentens equation depicts. It represent the second half of the vapor dome. 
+> The image above represents what the Magnus-Tentens equation depicts. It represent the second half of the vapor dome. 
+> https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node61.html
 
 Saturated vapor pressure i.e. pressure where the Pv = Pv_sat the max amount of pressure the water will see at 100% relative humidity 
 
