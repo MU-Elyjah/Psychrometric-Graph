@@ -1,4 +1,4 @@
-## HOW RELATIVE HUMIDITY IS CALCULATED 
+# HOW RELATIVE HUMIDITY IS CALCULATED 
 
 $$P_vV = n_vRT$$
 $$P_aV = n_aRT$$
@@ -33,6 +33,6 @@ Where e(Tdp) is the partial pressure of water at the dew point. In this way the 
 
 $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
 
-# CONCLUSION
+## CONCLUSION
 
 Relative humidity is a calculation on the capability of water vapor evaporating in the air due to pressure differences being proportional to the energy of evaporation here. 
