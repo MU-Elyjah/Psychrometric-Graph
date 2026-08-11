@@ -20,4 +20,4 @@ $$ P_v(Twb) = .61078 e^{\frac{17.27T}{T + 273}} $$
 > 
 Saturated vapor pressure i.e. pressure where the Pv = Pv_sat the max amount of pressure the water will see at 100% relative humidity 
 
-$$RH = 100\frac{P_v}{P_v(Twb)} $$
+$$RH = 100\frac{P_v}{P_v(Tdp)} $$
