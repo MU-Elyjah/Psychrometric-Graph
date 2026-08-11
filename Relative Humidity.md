@@ -32,3 +32,7 @@ $$ \phi = \frac{e(Tdp)}{e(Tdb)} $$
 Where e(Tdp) is the partial pressure of water at the dew point. In this way the partial pressure of water would be the same as the actual partial pressure of the air [Reference ideal gas law for mathematical proof]. e(Tb) is the saturated partial pressure at the dry bulb temperature where X = 1. 
 
 $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
+
+# CONCLUSION
+
+Relative humidity is a calculation on the capability of water vapor evaporating in the air due to pressure differences being proportional to the energy of evaporation here. 
