@@ -25,4 +25,10 @@ $$ P(Tdb)_{sat} = .61078 e^{\frac{17.27T}{T + 273}} $$
 
 Saturated vapor pressure i.e. pressure where the Pv = Pv_sat the max amount of pressure the water will see at 100% relative humidity 
 
+It is important to note the ASHRAE uses:
+
+$$ \phi = \frac{e(Tdp)}{e(Tdb)} $$
+
+Where e(Tdp) is the partial pressure of water at the dew point. In this way the partial pressure of water would be the same as the actual partial pressure of the air [Reference ideal gas law for mathematical proof]. e(Tb) is the saturated partial pressure at the dry bulb temperature where X = 1. 
+
 $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
