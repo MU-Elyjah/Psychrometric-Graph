@@ -14,7 +14,7 @@ $$P_v = \frac{WP_a}{.622 + W}$$
 
 Vapor pressure
 
-$$ P(Twb)_{sat} = .61078 e^{\frac{17.27T}{T + 273}} $$ 
+$$ P(Tdb)_{sat} = .61078 e^{\frac{17.27T}{T + 273}} $$ 
 
 > Magnus - Tentens Equation
 > 
