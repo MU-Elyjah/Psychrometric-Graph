@@ -29,9 +29,11 @@ It is important to note the ASHRAE uses:
 
 $$ \phi = \frac{e(Tdp)}{e(Tdb)} $$
 
-Where e(Tdp) is the partial pressure of water at the dew point. In this way the partial pressure of water would be the same as the actual partial pressure of the air [Reference ideal gas law for mathematical proof]. e(Tb) is the saturated partial pressure at the dry bulb temperature where X = 1. 
+Where e(Tdp) is the partial pressure of water at the dew point. In this way the partial pressure of water would be the same as the actual partial pressure of the air [Reference ideal gas law for mathematical proof]. e(Tb) is the saturated partial pressure at the dry bulb temperature where X = 1.
 
-<img width="1666" height="889" alt="image" src="https://github.com/user-attachments/assets/a9a1b26a-e351-496c-84c1-9cb9f6eb0bd0" />
+<img width="1598" height="874" alt="image" src="https://github.com/user-attachments/assets/5de59097-1893-4b00-acf7-139b0c15b070" />
+
+>The image here depicts the pressure ratio to determine the relative humidity its important to note that the 100% relative humidity line describes vapor pressures at qualities x = 1. For a mathematical proof refer to Relative_humidity_EX.py and companion equations.
 
 $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
 
