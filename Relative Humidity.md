@@ -31,6 +31,8 @@ $$ \phi = \frac{e(Tdp)}{e(Tdb)} $$
 
 Where e(Tdp) is the partial pressure of water at the dew point. In this way the partial pressure of water would be the same as the actual partial pressure of the air [Reference ideal gas law for mathematical proof]. e(Tb) is the saturated partial pressure at the dry bulb temperature where X = 1. 
 
+<img width="1666" height="889" alt="image" src="https://github.com/user-attachments/assets/a9a1b26a-e351-496c-84c1-9cb9f6eb0bd0" />
+
 $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
 
 ## CONCLUSION
