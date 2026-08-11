@@ -37,4 +37,6 @@ $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
 
 Relative humidity is a calculation on the capability of water vapor evaporating in the air due to pressure differences being proportional to the energy of evaporation here.
 
+$$ W = \int{Vdp}$$
+
 Additionally, this is a measurement of comfortability. Imagine moisture on your lips, if the air has a low relative humidity, then the feeling of being dry become more and more intense under steady state conditions.
