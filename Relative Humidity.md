@@ -16,8 +16,12 @@ Vapor pressure
 
 $$ P(Tdb)_{sat} = .61078 e^{\frac{17.27T}{T + 273}} $$ 
 
-> Magnus - Tentens Equation
-> 
+> Magnus - Tentens Equation: This describes the saturated vapor pressure of water at X = 1 at the T = Tdb not shown on the graph.
+
+<img width="397" height="310" alt="image" src="https://github.com/user-attachments/assets/0551d4c5-a72e-4e5f-ab8c-be97aaa365f9" />
+
+>the image above represents what the Magnus-Tentens equation depicts. It represent the second half of the vapor dome. 
+
 Saturated vapor pressure i.e. pressure where the Pv = Pv_sat the max amount of pressure the water will see at 100% relative humidity 
 
 $$RH = 100\frac{P_v}{P(Tdb)_{sat}} $$
