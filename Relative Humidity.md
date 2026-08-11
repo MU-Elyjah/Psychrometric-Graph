@@ -10,7 +10,7 @@ $$ .622 \frac{P_v}{P_a} = W $$
 
 $$ P_a = \frac{.622 P_v}{W} $$
 $$ P_t = P_a + P_v $$
-$$P_v = \frac{WP_a}{.622 + W}$$ 
+$$P_v = \frac{WP_t}{.622 + W}$$ 
 
 Vapor pressure
 
