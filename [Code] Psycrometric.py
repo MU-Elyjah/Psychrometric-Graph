@@ -43,7 +43,7 @@ def constRelativeHumid(Pt,rh,Tdb): #pt in KPa
 
 def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH #pt in KPa
     in2ft_cubic = 1/(12**2)
-    Ra = 53.53 # lbf/lb*Rs 
+    Ra = 53.350 # lbf/lb*Rs 
     z = .622 #molecular mass ratio of water/air mv/ma
     Tdb = Tdb + 459.67 # converting to Rankine temp
     Pv2 = uc.convertPA2PSI(Pt*1000) - ((Ra*Tdb)*in2ft_cubic)/((vspec_a))#Vapor pressure
@@ -120,7 +120,7 @@ def PlotCharts(Z):
     plotFormat()
     Tdb2 = np.linspace(30,120) # [F]
     RH2 = np.linspace(10,100,10) #%
-    SPV = np.linspace(12.5,15,13)
+    SPV = np.linspace(12.4,15,14)
     ENTH = np.linspace(10,50,11)
     WETB = np.linspace(20,95,16)
     Pt = Altidude(Z)
@@ -141,11 +141,10 @@ def PlotCharts(Z):
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constSpecificVol(Pt,spv,Tdb2)
-
         plt.plot(Tdb2,Phi2, color = 'green')
-
-        xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
-        ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
+        xlabel = Tdb2[int(len(Tdb2) - 1)] #location for label in x
+        ylabel = Phi2[int(len(Phi2) - 1)] #location for label in y
+        plt.text(xlabel,ylabel,f'{spv}!',fontsize = 9,rotation = 4, color = "green") #label graphs positions with rh change to string
 
     for enth in ENTH:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
