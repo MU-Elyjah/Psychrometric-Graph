@@ -16,17 +16,18 @@ def Enthalpy(Pt,Tdb,humrat): #pt in KPa
     Hw = cpwvIP*(Tdb) + 1075.92 #1075.92 is the enthalpy of water at vapor sat point 
     H = Ha + Hw*humrat/7000 #total specific enthalpy
     #print(cpwIP)
-    print(cpaIP)
-    print(cpwvIP)
+    #print(cpaIP)
+    #print(cpwvIP)
 
-    print(f"Ha: {Ha:.2f} Btu/lb")
-    print(f"Hw: {Hw:.2f} Btu/lb")
+    #print(f"Ha: {Ha:.2f} Btu/lb")
+    #print(f"Hw: {Hw:.2f} Btu/lb")
     return H
 
-def relativeHumidity(Pt,Tdb,Phi): #pt in KPa
+def relativeHumidity(Pt,Tdb,Phi): #pt in KPa Tdb in F and phi in lb/lb
     lbs2kpa= 6.89475729 #converting
     z = .622
-    PsT = .61078 * np.exp((17.27 * Tdb)/(Tdb + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
+    Cdb2 = (Tdb - 32)*5/9 # [C]-->>
+    PsT = .61078 * np.exp((17.27 * Cdb2)/(Cdb2 + 237.3)) #Magnus-Tetens Equation for Saturated pressure of water empircally driven outputs kpa inputs C
     Pv = Phi*Pt/(z + Phi) #water vapor pressure
     RH = (Pv/PsT)*100
     return RH
@@ -41,15 +42,14 @@ def constRelativeHumid(Pt,rh,Tdb): #pt in KPa
     return humrat
 
 def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH #pt in KPa
-    kpa2psi = 0.145037738
     in2ft_cubic = 1/(12**2)
-
-    Ra = 53.53 # lbf/lb*Rs
+    Ra = 53.53 # lbf/lb*Rs 
     z = .622 #molecular mass ratio of water/air mv/ma
     Tdb = Tdb + 459.67 # converting to Rankine temp
-    Pv2 = (Pt - ((Ra*Tdb)*in2ft_cubic)/(vspec_a*kpa2psi)) #Vapor pressure
-    Phi = z*(Pv2/(Pt-Pv2))*7000 # [grains/lbs] #vapor pressure over air pressure  #molar ratio is equal to pressure ratio (water is essentially an ideal gas)
-    return Phi
+    Pv2 = uc.convertPA2PSI(Pt*1000) - ((Ra*Tdb)*in2ft_cubic)/((vspec_a))#Vapor pressure
+    humrat = z*(Pv2/(uc.convertPA2PSI(Pt*1000) - Pv2))*7000 #[grains/lbs] #vapor pressure over air pressure  #molar ratio is equal to pressure ratio (water is essentially an ideal gas)
+    #print(humrat)
+    return humrat
 
 def constEnthalpy(Pt,H,Tdb):#pt in KPa
     TdbK = uc.convertF2K(Tdb) 
@@ -111,15 +111,19 @@ def plotFormat():
     ax.set_yticks(minor_ticks_y, minor=True)
     ax.grid(which= 'both')
 
+def Altidude(Z):
+    psi2kpa= 6.89475729 #converting
+    Pt = (14.696*(1 - 6.8754*10**(-6)*Z)**5.2559)*psi2kpa #
+    return Pt
+
 def PlotCharts(Z):
     plotFormat()
     Tdb2 = np.linspace(30,120) # [F]
     RH2 = np.linspace(10,100,10) #%
-    SPV = np.linspace(12.5,15,6)
+    SPV = np.linspace(12.5,15,13)
     ENTH = np.linspace(10,50,11)
     WETB = np.linspace(20,95,16)
-    psi2kpa= 6.89475729 #converting
-    Pt = (14.696*(1 - 6.8754*10**(-6)*Z)**5.2559)*psi2kpa #
+    Pt = Altidude(Z)
     #print(Pt)
 
     for rh in RH2:
@@ -179,9 +183,4 @@ def main():
 #USER INPUT HERE
     Z = 0 #ft EDIT HERE FOR LOCATION ALTITUDE
     PlotCharts(Z)
-    Ppsi = 14.696
-    PKpa = uc.convertPSI2PA(Ppsi)/1000
-    #print(constRelativeHumid(PKpa,100,55))
-    E1 = Enthalpy(PKpa,65,constRelativeHumid(PKpa,100,65))
-    print("E Hot: ", E1)
 main()
