@@ -1,4 +1,4 @@
-# How Specific Volume Is Calculated
+# HOW SPECIFIC VOLUME IS CALCULATED
 
 $$Pt = 14.696*(1 - 6.8754(10^{-6})*Z)^{5.2559}$$
 $$P\nu_a = R_aT$$
