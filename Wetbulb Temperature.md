@@ -10,4 +10,4 @@ $$ \omega_s = \omega(Pt, 100RH, Twb)$$
 
 Solving for wet bulb temperature here is difficult due to the implicit nature of the equation. It can be found using tabulated data. The process would to find the dry bulb temperature and humidity and then determine the wet bulb temperature from that tabulated values of the wet bulb temperature. However, it is hardly used in practice as a driving point for HVAC and is typically supplemental. 
 
-It is important to note that cooling using the constant wet bulb line is highly energy efficient then typical methods. Current issues with this cooling method is the maintenance cost and the issues thereof. 
+It is important to note that cooling using the constant wet bulb line is highly energy efficient then typical methods. Current issues with this cooling method is the maintenance cost. 
