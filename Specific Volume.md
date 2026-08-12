@@ -11,6 +11,6 @@ The air pressure is directly related to the atmospheric pressure. The higher the
 
 $$ w = \int \frac{P}{d\rho}$$
 
-However heat transfer characteristics change by the following equation:
+However heat transfer characteristics change and decreases heat transfer rate by the following equation:
 
 $$ q = \rho c_p \Delta T $$
