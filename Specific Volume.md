@@ -13,4 +13,4 @@ $$ w = \int \frac{P}{d\rho}$$
 
 However heat transfer characteristics change by the following equation:
 
-$$ q = \rho \int c_p(T) dT $$
+$$ q = \rho c_p \Delta T $$
