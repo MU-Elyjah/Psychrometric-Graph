@@ -126,30 +126,36 @@ def PlotCharts(Z):
     Pt = Altidude(Z)
     #print(Pt)
 
+    RHphimat = []
     for rh in RH2:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constRelativeHumid(Pt,rh,Tdb2)
+        RHphimat.append(Phi2)
+
         plt.plot(Tdb2,Phi2, color = 'red')
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
         ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
         plt.text(xlabel,ylabel,f'{rh}%',fontsize = 9,rotation = 45, color = "red") #label graphs positions with rh change to string
 
         #print(Phi2)
-
+    spv_phimat = []
     for spv in SPV:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constSpecificVol(Pt,spv,Tdb2)
+        spv_phimat.append(Phi2)
         plt.plot(Tdb2,Phi2, color = 'green')
-        xlabel = Tdb2[int(len(Tdb2) - 1)] #location for label in x
-        ylabel = Phi2[int(len(Phi2) - 1)] #location for label in y
-        plt.text(xlabel,ylabel,f'{spv}!',fontsize = 9,rotation = 4, color = "green") #label graphs positions with rh change to string
 
+        xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
+        ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
+
+    enth_phimat = []
     for enth in ENTH:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constEnthalpy(Pt,enth,Tdb2)
+        enth_phimat.append(Phi2)
         xlabel = Tdb2[1] #location for label in x
         ylabel = Phi2[1] #location for label in y
 
@@ -160,10 +166,12 @@ def PlotCharts(Z):
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
         ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
 
+    wetb_phimat = []
     for wetb in WETB:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constWetBulb(Pt,wetb,Tdb2)
+        wetb_phimat.append(Phi2)
         #print(wetb)
         #print(Phi2)
         #print(Tdb2)
@@ -171,8 +179,7 @@ def PlotCharts(Z):
         xlabel = Tdb2[0] #location for label in x
         ylabel = Phi2[0] #location for label in y
         plt.text(xlabel,ylabel,f'{wetb}',fontsize = 9,rotation = 45, color = "orange") #label graphs positions with rh change to string
-
-
+ 
     plt.xlabel("Dry Bulb Temperature")
     plt.ylabel("Humidity Ratio")
     plt.show()
@@ -182,4 +189,30 @@ def main():
 #USER INPUT HERE
     Z = 0 #ft EDIT HERE FOR LOCATION ALTITUDE
     PlotCharts(Z)
+    Pt = Altidude(Z)
+    E1 = Enthalpy(Pt,48,constWetBulb(Pt,48,48))
+    E2 = Enthalpy(Pt,58.5,constWetBulb(Pt,48,48))
+    #print(uc.convertPA2PSI(Pt*1000))
+    #print(E1)
+    #print(E2)
+    deltaE = E2 - E1
+    #print(deltaE)
+    #print(constWetBulb(Pt,45,45))
+
+
+    Pt = Altidude(Z)
+    E1 = Enthalpy(Pt,45,constWetBulb(Pt,45,45))
+    E2 = Enthalpy(Pt,58.5,constWetBulb(Pt,45,45))
+    #print(uc.convertPA2PSI(Pt*1000))
+    #print(E1)
+    #print(E2)
+    deltaE = E2 - E1
+    #print(deltaE)
+
+    Eb = Enthalpy(Pt,45,constWetBulb(Pt,45,45))
+    Ea = Enthalpy(Pt,48,constWetBulb(Pt,48,48))
+
+    deltaE = Ea - Eb
+    #print(deltaE)
+    #print(constWetBulb(Pt,45,45))
 main()
