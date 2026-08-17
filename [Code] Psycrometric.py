@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 import unitconversions as uc
 import CoolProp.CoolProp as CP
 
@@ -184,11 +185,40 @@ def PlotCharts(Z):
     plt.ylabel("Humidity Ratio")
     plt.show()
 
+    return RHphimat, spv_phimat, enth_phimat, wetb_phimat
+
+def portal2excel(RHphimat, spv_phimat, enth_phimat, wetb_phimat):
+    dfRH = pd.DataFrame(RHphimat).T
+    dfSPV = pd.DataFrame(spv_phimat).T
+    dfENTH = pd.DataFrame(enth_phimat).T
+    dfWET = pd.DataFrame(wetb_phimat).T
+
+    try: 
+        dfRH.to_excel(excel_writer = r"C:\Users\EToledo\OneDrive - Valhalla Engineering\Documents\Psychrometric Data\RelativeHumTable.xlsx")
+    except:
+        print("Data set of Relative Humidity Matrix is empty")
+
+    try:
+        dfSPV.to_excel(excel_writer = r"C:\Users\EToledo\OneDrive - Valhalla Engineering\Documents\Psychrometric Data\SpecificVolumeTable.xlsx")
+    except:
+        print("Data set Specific Volume Matrix is empty")
+
+    try:
+        dfENTH.to_excel(excel_writer = r"C:\Users\EToledo\OneDrive - Valhalla Engineering\Documents\Psychrometric Data\EnthalpyTable.xlsx")
+    except:
+        print("Data set Enthalpy Matrix is empty")
+
+    try: 
+        dfWET.to_excel(excel_writer = r"C:\Users\EToledo\OneDrive - Valhalla Engineering\Documents\Psychrometric Data\WetbulbTable.xlsx")
+    except:
+        print("Data set Wetbulb Matrix is empty")
+
 
 def main():
 #USER INPUT HERE
     Z = 0 #ft EDIT HERE FOR LOCATION ALTITUDE
-    PlotCharts(Z)
+    Master = PlotCharts(Z)
+    portal2excel(*Master)
     Pt = Altidude(Z)
     E1 = Enthalpy(Pt,48,constWetBulb(Pt,48,48))
     E2 = Enthalpy(Pt,58.5,constWetBulb(Pt,48,48))
