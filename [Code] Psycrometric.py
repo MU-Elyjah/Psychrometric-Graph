@@ -42,14 +42,15 @@ def constRelativeHumid(Pt,rh,Tdb): #pt in KPa
     return humrat
 
 def constSpecificVol(Pt,vspec_a,Tdb): #ISSUES SLIGHTLY OFF FROM OG GRAPH #pt in KPa
+    kpa2psi = 0.145037738
     in2ft_cubic = 1/(12**2)
-    Ra = 53.350 # lbf/lb*Rs 
+
+    Ra = 53.53 # lbf/lb*Rs 
     z = .622 #molecular mass ratio of water/air mv/ma
     Tdb = Tdb + 459.67 # converting to Rankine temp
-    Pv2 = uc.convertPA2PSI(Pt*1000) - ((Ra*Tdb)*in2ft_cubic)/((vspec_a))#Vapor pressure
-    humrat = z*(Pv2/(uc.convertPA2PSI(Pt*1000) - Pv2))*7000 #[grains/lbs] #vapor pressure over air pressure  #molar ratio is equal to pressure ratio (water is essentially an ideal gas)
-    #print(humrat)
-    return humrat
+    Pv2 = (Pt - ((Ra*Tdb)*in2ft_cubic)/(vspec_a*kpa2psi)) #Vapor pressure
+    Phi = z*(Pv2/(Pt-Pv2))*7000 # [grains/lbs] #vapor pressure over air pressure  #molar ratio is equal to pressure ratio (water is essentially an ideal gas)
+    return Phi
 
 def constEnthalpy(Pt,H,Tdb):#pt in KPa
     TdbK = uc.convertF2K(Tdb) 
@@ -110,7 +111,6 @@ def plotFormat():
     ax.set_yticks(major_ticks_y)
     ax.set_yticks(minor_ticks_y, minor=True)
     ax.grid(which= 'both')
-
 def Altidude(Z):
     psi2kpa= 6.89475729 #converting
     Pt = (14.696*(1 - 6.8754*10**(-6)*Z)**5.2559)*psi2kpa #
@@ -120,36 +120,42 @@ def PlotCharts(Z):
     plotFormat()
     Tdb2 = np.linspace(30,120) # [F]
     RH2 = np.linspace(10,100,10) #%
-    SPV = np.linspace(12.4,15,14)
+    SPV = np.linspace(12.5,15,6)
     ENTH = np.linspace(10,50,11)
     WETB = np.linspace(20,95,16)
     Pt = Altidude(Z)
     #print(Pt)
-
+    
+    RHphimat = []
     for rh in RH2:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constRelativeHumid(Pt,rh,Tdb2)
+        RHphimat.append(Phi2)
+
         plt.plot(Tdb2,Phi2, color = 'red')
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
         ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
         plt.text(xlabel,ylabel,f'{rh}%',fontsize = 9,rotation = 45, color = "red") #label graphs positions with rh change to string
 
         #print(Phi2)
-
+    spv_phimat = []
     for spv in SPV:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constSpecificVol(Pt,spv,Tdb2)
+        spv_phimat.append(Phi2)
         plt.plot(Tdb2,Phi2, color = 'green')
-        xlabel = Tdb2[int(len(Tdb2) - 1)] #location for label in x
-        ylabel = Phi2[int(len(Phi2) - 1)] #location for label in y
-        plt.text(xlabel,ylabel,f'{spv}!',fontsize = 9,rotation = 4, color = "green") #label graphs positions with rh change to string
 
+        xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
+        ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
+
+    enth_phimat = []
     for enth in ENTH:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constEnthalpy(Pt,enth,Tdb2)
+        enth_phimat.append(Phi2)
         xlabel = Tdb2[1] #location for label in x
         ylabel = Phi2[1] #location for label in y
 
@@ -160,10 +166,12 @@ def PlotCharts(Z):
         xlabel = Tdb2[int(len(Tdb2)/2 - 1)] #location for label in x
         ylabel = Phi2[int(len(Phi2)/2)] #location for label in y
 
+    wetb_phimat = []
     for wetb in WETB:
         #Pv2 = (rh*PsT2)/100 # P_vapor = RH*P_sat/100 due to RH equation [psi]
         #Phi2 = z*(Pv2/(Pt-Pv2))*7000 # see appendix A [grains/lbs]
         Phi2 = constWetBulb(Pt,wetb,Tdb2)
+        wetb_phimat.append(Phi2)
         #print(wetb)
         #print(Phi2)
         #print(Tdb2)
@@ -171,7 +179,6 @@ def PlotCharts(Z):
         xlabel = Tdb2[0] #location for label in x
         ylabel = Phi2[0] #location for label in y
         plt.text(xlabel,ylabel,f'{wetb}',fontsize = 9,rotation = 45, color = "orange") #label graphs positions with rh change to string
-
 
     plt.xlabel("Dry Bulb Temperature")
     plt.ylabel("Humidity Ratio")
@@ -182,4 +189,17 @@ def main():
 #USER INPUT HERE
     Z = 0 #ft EDIT HERE FOR LOCATION ALTITUDE
     PlotCharts(Z)
+    Pt = Altidude(Z)
+    Twb = 46.8 #F
+    Tdb = 75 #F
+    humrat = constWetBulb(Pt,Twb,Tdb)/7000
+    RH = relativeHumidity(Pt,Tdb,constWetBulb(Pt,Twb,Tdb)/7000)
+
+    humrat_sat = constRelativeHumid(Pt,100,Tdb)/7000 #Tdb
+    print("Humdity ratio @Tdb 100% RH",humrat_sat)
+    print("Altitude Pressure [psi]",uc.convertPA2PSI(Altidude(Z)*1000))
+
+    humrat_30 = constRelativeHumid(Pt,30,Tdb)/7000 #Tdp
+    print("Humdity ratio @Tdb 30% RH",humrat_30)
+    #print("E Hot: ", E1)
 main()
