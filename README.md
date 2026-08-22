@@ -11,4 +11,4 @@ IMPORTANT TO NOTE THE SPECIFIC VOLUME LINES DO NOT CHANGE WITH ELEVATION MANUAL 
 
 <img width="1289" height="419" alt="Screenshot 2026-08-22 at 2 07 51 PM" src="https://github.com/user-attachments/assets/714118c9-21c9-4601-bde1-f20fa232de77" />
 
-MasterTable.xlsx uses tabulated data driven from Psycrometric.py to plot for easier engineering use. The graph is fullly customizable for engineering needs.
+MasterTable.xlsx uses tabulated data driven from Psycrometric.py to plot for easier engineering use. The graph is fully customizable for engineering needs.
